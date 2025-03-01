@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tournament Buddy</title>
-    <link rel="stylesheet" href="style.css">  </head>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
 <body>
     <div id="app">
+        <h1>Tournament Buddy</h1>
+        <p style="text-align: center; margin-bottom: 30px;">All your tournament needs sorted!</p>
         <div id="homepage" class="page">
             <h1 class="animated-title">Your Tournament Management Sorted</h1>
-            <button id="loginButton">Login with Google</button>
-            <div id="authStatus"></div> <div id="content" style="display: none;">
-            <button id="selectSport">Select Your Sport (Badminton)</button>
-            <button id="tournamentSetup">Tournament Setup</button>
-            <button id="matchSchedule">Match Schedule</button>
-            <button id="pointsTable">Points Table</button>
-            <button id="logoutButton">Logout</button> </div>
+            <div id="content">
+                <button id="selectSport">Select Your Sport (Badminton)</button>
+                <button id="tournamentSetup">Tournament Setup</button>
+                <button id="matchSchedule">Match Schedule</button>
+                <button id="pointsTable">Points Table</button>
+            </div>
         </div>
 
         <div id="tournamentSetupPage" class="page" style="display: none;">

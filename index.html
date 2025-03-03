@@ -4,73 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tournament Buddy</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
-        <h1>Tournament Buddy</h1>
-        <p style="text-align: center; margin-bottom: 30px;">All your tournament needs sorted!</p>
-        <div id="homepage" class="page">
-            <h1 class="animated-title">Your Tournament Management Sorted</h1>
-            <div id="content">
-                <button id="selectSport">Select Your Sport (Badminton)</button>
-                <button id="tournamentSetup">Tournament Setup</button>
-                <button id="matchSchedule">Match Schedule</button>
-                <button id="pointsTable">Points Table</button>
+        <header>
+            <h1 class="logo">Tournament Buddy</h1>
+            <p class="tagline">All your tournament needs sorted!</p>
+        </header>
+
+        <!-- Homepage -->
+        <div id="homepage" class="page active">
+            <div class="hero-content">
+                <h2 class="animated-title">Your Tournament Management Sorted</h2>
+                <div class="button-container">
+                    <button id="tournamentSetup" class="primary-button">Tournament Setup</button>
+                    <button id="matchSchedule" class="primary-button">Match Schedule</button>
+                    <button id="pointsTable" class="primary-button">Points Table</button>
+                </div>
             </div>
         </div>
 
-        <div id="tournamentSetupPage" class="page" style="display: none;">
-            <h2>Tournament Setup</h2>
-            <input type="text" id="tournamentName" placeholder="Tournament Name (e.g., Badminton Tournament)" required><br>
-            <div id="teamsContainer">
+        <!-- Tournament Setup Screen -->
+        <div id="tournamentSetupPage" class="page">
+            <div class="page-content">
+                <h2>Tournament Setup</h2>
+                <div class="form-group">
+                    <label for="tournamentName">Tournament Name</label>
+                    <input type="text" id="tournamentName" placeholder="e.g., Badminton Tournament 1" required>
                 </div>
-            <button id="addTeam">Add Team</button>
-            <button id="goToMatchSchedule">Go to Match Schedule</button>
-            <button id="backToHomeFromSetup">Back to Home</button>
+                
+                <div class="teams-section">
+                    <h3>Teams</h3>
+                    <div id="teamsContainer" class="teams-container"></div>
+                    <button id="addTeam" class="secondary-button">Add Team</button>
+                </div>
+                
+                <div class="button-container">
+                    <button id="goToMatchSchedule" class="primary-button">Go to Match Schedule</button>
+                    <button id="backToHomeFromSetup" class="text-button">Back to Home</button>
+                </div>
+            </div>
         </div>
 
-        <div id="matchSchedulePage" class="page" style="display: none;">
-            <h2>Match Schedule</h2>
-            <table id="matchScheduleTable">
-                <thead>
-                    <tr>
-                        <th>Match #</th>
-                        <th>Team 1</th>
-                        <th>Player 1</th>
-                        <th>Player 2</th>
-                        <th>Team 2</th>
-                        <th>Player 1</th>
-                        <th>Player 2</th>
-                        <th>Date</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <button id="goToPointsTableFromSchedule">Go to Points Table</button>
-            <button id="backToHomeFromSchedule">Back to Home</button>
+        <!-- Match Schedule Screen -->
+        <div id="matchSchedulePage" class="page">
+            <div class="page-content">
+                <h2>Match Schedule</h2>
+                <div id="tournamentNameDisplay" class="tournament-name-display"></div>
+                
+                <div class="table-container">
+                    <table id="matchScheduleTable">
+                        <thead>
+                            <tr>
+                                <th>Match #</th>
+                                <th>Date</th>
+                                <th>Team A</th>
+                                <th>Player 1</th>
+                                <th>Player 2</th>
+                                <th>Score</th>
+                                <th>Team B</th>
+                                <th>Player 1</th>
+                                <th>Player 2</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                
+                <div class="button-container">
+                    <button id="goToPointsTableFromSchedule" class="primary-button">Go to Points Table</button>
+                    <button id="saveMatchSchedule" class="secondary-button">Save Changes</button>
+                    <button id="backToHomeFromSchedule" class="text-button">Back to Home</button>
+                </div>
+            </div>
         </div>
 
-        <div id="pointsTablePage" class="page" style="display: none;">
-            <h2>Points Table</h2>
-            <select id="tournamentSelect"></select>
-            <table id="pointsTable">
-                <thead>
-                    <tr>
-                        <th>Team</th>
-                        <th>Points</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <button id="backToHomeFromPoints">Back to Home</button>
+        <!-- Points Table Screen -->
+        <div id="pointsTablePage" class="page">
+            <div class="page-content">
+                <h2>Points Table</h2>
+                <div class="form-group">
+                    <label for="tournamentSelect">Select Tournament</label>
+                    <select id="tournamentSelect"></select>
+                </div>
+                
+                <div class="table-container">
+                    <table id="pointsTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Team</th>
+                                <th>Points</th>
+                                <th>Matches Played</th>
+                                <th>Won</th>
+                                <th>Lost</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                
+                <div class="button-container">
+                    <button id="backToHomeFromPoints" class="text-button">Back to Home</button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Add Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <script src="script.js"></script>
 </body>

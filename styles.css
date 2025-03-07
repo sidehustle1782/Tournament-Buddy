@@ -1,8 +1,8 @@
 /* Base styles */
 :root {
-    --primary-color: #007FFF;
-    --primary-dark: #0060DD;
-    --secondary-color: #E91E63;
+    --primary-color: #007FFF; /* Bright blue */
+    --primary-dark: #0060DD; /* Darker blue */
+    --secondary-color: #E91E63; /* Pink accent */
     --background-dark: rgba(0, 0, 0, 0.85);
     --background-light: rgba(15, 15, 30, 0.75);
     --text-light: #FFFFFF;
@@ -26,7 +26,7 @@ body {
     padding: 0;
     background-image: url('background.jpg');
     background-size: cover;
-    background-position: center;
+    background-position: center top; /* Adjusted for better alignment */
     background-attachment: fixed;
     background-repeat: no-repeat;
     min-height: 100vh;
@@ -50,20 +50,15 @@ header {
 }
 
 .logo {
-    font-size: 28px;
+    font-family: 'Orbitron', sans-serif; /* Futuristic font */
+    font-size: 2rem;
     font-weight: 700;
     margin: 0;
-    background: linear-gradient(90deg, #007FFF, #00F0FF);
+    background: linear-gradient(90deg, var(--primary-color), #00F0FF);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 10px rgba(0, 127, 255, 0.5);
-}
-
-.tagline {
-    font-size: 14px;
-    margin-top: 5px;
-    color: var(--text-muted);
 }
 
 /* Page Structure */
@@ -88,14 +83,15 @@ header {
 }
 
 h2 {
-    font-size: 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
     margin-bottom: 20px;
     text-align: center;
     font-weight: 500;
 }
 
 h3 {
-    font-size: 18px;
+    font-size: 1.2rem;
     margin: 15px 0;
     font-weight: 500;
 }
@@ -104,30 +100,28 @@ h3 {
 .hero-content {
     text-align: center;
     padding: 40px 20px;
-    background-color: var(--background-dark);
-    border-radius: 12px;
-    margin-top: 40px;
 }
 
 .animated-title {
-    font-size: 32px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 30px;
-    animation: fadeInUp 1s ease-out;
-    background: linear-gradient(90deg, #007FFF, #00F0FF);
+    animation: slideIn 1s ease-out;
+    background: linear-gradient(90deg, var(--primary-color), #00F0FF);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-@keyframes fadeInUp {
+@keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateX(-100%);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
     }
 }
 
@@ -136,7 +130,8 @@ h3 {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-top: 20px;
+    margin: 20px auto;
+    max-width: 300px; /* Keeps buttons compact on mobile */
 }
 
 button {
@@ -144,15 +139,15 @@ button {
     cursor: pointer;
     border: none;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 500;
+    padding: 14px 20px;
     transition: all 0.2s ease;
 }
 
 .primary-button {
     background-color: var(--primary-color);
-    color: white;
-    padding: 14px 20px;
+    color: var(--text-light);
     box-shadow: 0 4px 6px rgba(0, 127, 255, 0.3);
 }
 
@@ -165,7 +160,6 @@ button {
 .secondary-button {
     background-color: transparent;
     color: var(--primary-color);
-    padding: 12px 20px;
     border: 2px solid var(--primary-color);
 }
 
@@ -192,7 +186,7 @@ button {
 label {
     display: block;
     margin-bottom: 8px;
-    font-size: 14px;
+    font-size: 0.9rem;
     color: var(--text-muted);
 }
 
@@ -203,7 +197,7 @@ input, select {
     border: 1px solid var(--border-color);
     border-radius: 6px;
     color: var(--text-light);
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 input:focus, select:focus {
@@ -227,23 +221,22 @@ input:focus, select:focus {
 
 .team-name {
     font-weight: 500;
-    font-size: 18px;
+    font-size: 1.1rem;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
+    gap: 10px;
 }
 
 .team-icon {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    margin-right: 10px;
-    background-color: var(--primary-color);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 0.9rem;
 }
 
 .player-list {
@@ -255,6 +248,7 @@ input:focus, select:focus {
 .player-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 8px;
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 4px;
@@ -266,9 +260,11 @@ input:focus, select:focus {
 
 .edit-button {
     background-color: transparent;
-    color: var(--text-muted);
+    color: var(--primary-color);
+    border: none;
     padding: 5px;
-    font-size: 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
 }
 
 /* Tables */
@@ -280,14 +276,14 @@ input:focus, select:focus {
 .tournament-name-display {
     text-align: center;
     margin-bottom: 20px;
-    font-size: 18px;
+    font-size: 1.2rem;
     color: var(--primary-color);
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 0.9rem;
 }
 
 th, td {
@@ -299,6 +295,7 @@ th, td {
 th {
     background-color: rgba(0, 0, 0, 0.3);
     color: var(--text-muted);
+    font-family: 'Orbitron', sans-serif;
     font-weight: 500;
     position: sticky;
     top: 0;
@@ -312,37 +309,20 @@ tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.editable {
-    position: relative;
-    cursor: pointer;
-}
-
-.editable:after {
-    content: '✎';
-    position: absolute;
-    right: 5px;
-    opacity: 0.5;
-    font-size: 12px;
-}
-
-.team-cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 /* Points Table Animation */
-@keyframes highlightRow {
-    0% {
-        background-color: rgba(0, 127, 255, 0.3);
-    }
-    100% {
-        background-color: transparent;
-    }
+.highlight-row {
+    animation: slideUp 0.5s ease-out;
 }
 
-.highlight-row {
-    animation: highlightRow 2s ease-out;
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Dropdown styling */
@@ -354,8 +334,36 @@ select {
     padding-right: 30px;
 }
 
-/* Responsive */
-@media (min-width: 768px) {
+/* Responsive Design */
+@media (max-width: 768px) {
+    .logo {
+        font-size: 1.5rem;
+    }
+
+    .animated-title {
+        font-size: 1.2rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    button {
+        font-size: 0.9rem;
+        padding: 12px 15px;
+    }
+
+    th, td {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+
+    .team-card {
+        padding: 10px;
+    }
+}
+
+@media (min-width: 769px) {
     .page {
         padding: 30px;
     }
@@ -364,6 +372,7 @@ select {
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
+        max-width: none;
     }
     
     .primary-button, .secondary-button {

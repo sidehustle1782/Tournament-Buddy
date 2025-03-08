@@ -1,13 +1,14 @@
 // Initialize Firebase
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyA0Gi96O7DUzO9s1fbvc476BJq9pZ2DzXI",
-    authDomain: "tournamanage.firebaseapp.com",
-    projectId: "tournamanage",
-    storageBucket: "tournamanage.firebasestorage.app",
-    messagingSenderId: "423341351838",
-    appId: "1:423341351838:web:cf256d5b3f01ffdc65ec8f",
-    measurementId: "G-Q005K3PGV5"
-};
+    apiKey: "AIzaSyAYYa7Gzn-YvgOPVYLFKqosJ6GwVHZYTe0",
+    authDomain: "tournament-buddy-63fc8.firebaseapp.com",
+    projectId: "tournament-buddy-63fc8",
+    storageBucket: "tournament-buddy-63fc8.firebasestorage.app",
+    messagingSenderId: "360496704708",
+    appId: "1:360496704708:web:934d4ec387506251c8ed91",
+    measurementId: "G-9LSWB960TX"
+  };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);

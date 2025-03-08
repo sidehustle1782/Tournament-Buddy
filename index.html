@@ -7,11 +7,11 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
-        <!-- Header with consistent branding -->
+        <!-- Header -->
         <header>
             <h1 class="logo">Tournament Buddy</h1>
         </header>
@@ -36,15 +36,14 @@
                     <label for="tournamentName">Tournament Name *</label>
                     <input type="text" id="tournamentName" placeholder="e.g., Badminton Tournament 1" required>
                 </div>
-                
                 <div class="teams-section">
                     <h3>Teams</h3>
                     <div id="teamsContainer" class="teams-container"></div>
                     <button id="addTeam" class="secondary-button">Add Team</button>
                 </div>
-                
                 <div class="button-container">
                     <button id="goToMatchSchedule" class="primary-button">Go to Match Schedule</button>
+                    <button id="deleteTournament" class="delete-button">Delete Tournament</button>
                     <button id="backToHomeFromSetup" class="text-button">Back to Home</button>
                 </div>
             </div>
@@ -55,27 +54,26 @@
             <div class="page-content">
                 <h2>Match Schedule</h2>
                 <div id="tournamentNameDisplay" class="tournament-name-display"></div>
-                
                 <div class="table-container">
                     <table id="matchScheduleTable">
                         <thead>
                             <tr>
-                                <th>Match #</th>
+                                <th>#</th>
                                 <th>Date</th>
                                 <th>Team A</th>
-                                <th>Player 1</th>
-                                <th>Player 2</th>
+                                <th>P1</th>
+                                <th>P2</th>
                                 <th>Score</th>
                                 <th>Team B</th>
-                                <th>Player 1</th>
-                                <th>Player 2</th>
+                                <th>P1</th>
+                                <th>P2</th>
                                 <th>Score</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
-                
                 <div class="button-container">
                     <button id="saveMatchSchedule" class="primary-button">Save Changes</button>
                     <button id="goToPointsTableFromSchedule" class="secondary-button">Go to Points Table</button>
@@ -92,7 +90,6 @@
                     <label for="tournamentSelect">Select Tournament</label>
                     <select id="tournamentSelect"></select>
                 </div>
-                
                 <div class="table-container">
                     <table id="pointsTable">
                         <thead>
@@ -108,7 +105,6 @@
                         <tbody></tbody>
                     </table>
                 </div>
-                
                 <div class="button-container">
                     <button id="backToHomeFromPoints" class="text-button">Back to Home</button>
                 </div>

@@ -1,5 +1,4 @@
 // Initialize Firebase
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
     apiKey: "AIzaSyAYYa7Gzn-YvgOPVYLFKqosJ6GwVHZYTe0",
     authDomain: "tournament-buddy-63fc8.firebaseapp.com",
@@ -8,39 +7,35 @@ const firebaseConfig = {
     messagingSenderId: "360496704708",
     appId: "1:360496704708:web:934d4ec387506251c8ed91",
     measurementId: "G-9LSWB960TX"
-  };
-// Initialize Firebase
+};
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // DOM Elements
-// Pages
 const pages = document.querySelectorAll('.page');
 const homepage = document.getElementById('homepage');
 const tournamentSetupPage = document.getElementById('tournamentSetupPage');
 const matchSchedulePage = document.getElementById('matchSchedulePage');
 const pointsTablePage = document.getElementById('pointsTablePage');
 
-// Homepage Buttons
 const tournamentSetupButton = document.getElementById('tournamentSetup');
 const matchScheduleButton = document.getElementById('matchSchedule');
 const pointsTableButton = document.getElementById('pointsTable');
 
-// Tournament Setup Elements
 const tournamentNameInput = document.getElementById('tournamentName');
 const teamsContainer = document.getElementById('teamsContainer');
 const addTeamButton = document.getElementById('addTeam');
 const goToMatchScheduleButton = document.getElementById('goToMatchSchedule');
+const deleteTournamentButton = document.getElementById('deleteTournament');
 const backToHomeFromSetupButton = document.getElementById('backToHomeFromSetup');
 
-// Match Schedule Elements
 const tournamentNameDisplay = document.getElementById('tournamentNameDisplay');
 const matchScheduleTable = document.getElementById('matchScheduleTable');
 const saveMatchScheduleButton = document.getElementById('saveMatchSchedule');
 const goToPointsTableFromScheduleButton = document.getElementById('goToPointsTableFromSchedule');
 const backToHomeFromScheduleButton = document.getElementById('backToHomeFromSchedule');
 
-// Points Table Elements
 const tournamentSelect = document.getElementById('tournamentSelect');
 const pointsTable = document.getElementById('pointsTable');
 const backToHomeFromPointsButton = document.getElementById('backToHomeFromPoints');
@@ -52,7 +47,6 @@ let matches = [];
 let currentTournamentId = null;
 let currentTournamentName = '';
 
-// Team Icons/Colors for better visibility
 const teamIcons = [
     { bg: '#3F51B5', text: '#FFF' }, // Indigo
     { bg: '#F44336', text: '#FFF' }, // Red
@@ -68,21 +62,22 @@ const teamIcons = [
 
 // Utility Functions
 function showPage(page) {
-    pages.forEach(p => {
-        p.classList.remove('active');
-    });
+    pages.forEach(p => p.classList.remove('active'));
     page.classList.add('active');
     currentPage = page;
-    
-    // Update display based on current page
+
     if (page === matchSchedulePage && currentTournamentName) {
         tournamentNameDisplay.textContent = currentTournamentName;
+        renderMatchSchedule();
+    } else if (page === pointsTablePage) {
+        loadTournamentSelect();
+    } else if (page === tournamentSetupPage) {
+        renderTeams();
     }
 }
 
 function getTeamIcon(index) {
-    const iconIndex = index % teamIcons.length;
-    return teamIcons[iconIndex];
+    return teamIcons[index % teamIcons.length];
 }
 
 function getInitials(name) {
@@ -95,341 +90,379 @@ async function saveTournamentData() {
         alert('Please enter a tournament name');
         return null;
     }
-    
     if (teams.length < 2) {
         alert('Please add at least 2 teams');
         return null;
     }
-    
+
     try {
-        // Save tournament data
         const tournamentData = {
             name: tournamentNameInput.value.trim(),
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
-        
         let tournamentRef;
-        
         if (currentTournamentId) {
-            // Update existing tournament
             tournamentRef = db.collection('tournaments').doc(currentTournamentId);
-            await tournamentRef.update({
-                name: tournamentData.name,
-                updatedAt: tournamentData.updatedAt
-            });
+            await tournamentRef.update(tournamentData);
         } else {
-            // Create new tournament
             tournamentRef = await db.collection('tournaments').add(tournamentData);
             currentTournamentId = tournamentRef.id;
         }
-        
-        // Save teams
+        currentTournamentName = tournamentData.name;
+
         const teamsRef = tournamentRef.collection('teams');
-        
-        // Clear existing teams if updating
-        if (currentTournamentId) {
-            const existingTeams = await teamsRef.get();
-            const batch = db.batch();
-            existingTeams.forEach(doc => {
-                batch.delete(doc.ref);
-            });
-            await batch.commit();
-        }
-        
-        // Add teams
-        for (const team of teams) {
-            await teamsRef.doc(team.name).set({
+        const batch = db.batch();
+        const existingTeams = await teamsRef.get();
+        existingTeams.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+
+        teams.forEach((team, index) => {
+            teamsRef.doc(team.name).set({
                 player1: team.player1,
                 player2: team.player2,
-                iconIndex: team.iconIndex
+                iconIndex: index
             });
-        }
-        
-        // Initialize points table
+        });
+
         const pointsRef = tournamentRef.collection('points');
-        for (const team of teams) {
-            await pointsRef.doc(team.name).set({
-                points: 0,
-                matchesPlayed: 0,
-                won: 0,
-                lost: 0
-            });
-        }
-        
-        currentTournamentName = tournamentData.name;
+        const pointsBatch = db.batch();
+        const existingPoints = await pointsRef.get();
+        existingPoints.forEach(doc => pointsBatch.delete(doc.ref));
+        await pointsBatch.commit();
+
+        teams.forEach(team => {
+            pointsRef.doc(team.name).set({ points: 0, matchesPlayed: 0, won: 0, lost: 0 });
+        });
+
         return currentTournamentId;
     } catch (error) {
-        console.error('Error saving tournament data:', error);
-        alert('Failed to save tournament data. Please try again.');
+        console.error('Error saving tournament:', error);
+        alert('Failed to save tournament. Check console.');
         return null;
     }
 }
 
-async function loadTournament(tournamentId) {
-    try {
-        // Load tournament data
-        const tournamentDoc = await db.collection('tournaments').doc(tournamentId).get();
-        if (!tournamentDoc.exists) {
-            alert('Tournament not found');
-            return false;
+async function deleteTournament() {
+    if (!currentTournamentId) {
+        alert('No tournament to delete.');
+        return;
+    }
+    if (confirm('Are you sure you want to delete this tournament? This will remove all associated data.')) {
+        try {
+            const tournamentRef = db.collection('tournaments').doc(currentTournamentId);
+            const teamsSnap = await tournamentRef.collection('teams').get();
+            const matchesSnap = await tournamentRef.collection('matches').get();
+            const pointsSnap = await tournamentRef.collection('points').get();
+
+            const batch = db.batch();
+            teamsSnap.forEach(doc => batch.delete(doc.ref));
+            matchesSnap.forEach(doc => batch.delete(doc.ref));
+            pointsSnap.forEach(doc => batch.delete(doc.ref));
+            batch.delete(tournamentRef);
+            await batch.commit();
+
+            currentTournamentId = null;
+            currentTournamentName = '';
+            teams = [];
+            matches = [];
+            tournamentNameInput.value = '';
+            renderTeams();
+            showPage(homepage);
+            alert('Tournament deleted successfully.');
+        } catch (error) {
+            console.error('Error deleting tournament:', error);
+            alert('Failed to delete tournament.');
         }
-        
-        const tournamentData = tournamentDoc.data();
-        currentTournamentName = tournamentData.name;
-        currentTournamentId = tournamentId;
-        tournamentNameInput.value = tournamentData.name;
-        
-        // Load teams
-        teams = [];
-        const teamsSnapshot = await tournamentDoc.ref.collection('teams').get();
-        teamsSnapshot.forEach(doc => {
-            const teamData = doc.data();
-            teams.push({
-                name: doc.id,
-                player1: teamData.player1,
-                player2: teamData.player2,
-                iconIndex: teamData.iconIndex || teams.length
-            });
+    }
+}
+
+async function loadTournamentSelect() {
+    try {
+        const tournamentsSnapshot = await db.collection('tournaments').orderBy('createdAt', 'desc').get();
+        tournamentSelect.innerHTML = '<option value="">Select Tournament</option>';
+        tournamentsSnapshot.forEach(doc => {
+            const option = document.createElement('option');
+            option.value = doc.id;
+            option.textContent = doc.data().name;
+            tournamentSelect.appendChild(option);
         });
-        
-        renderTeams();
-        
-        // Load matches
-        matches = [];
-        const matchesSnapshot = await tournamentDoc.ref.collection('matches').orderBy('matchNumber').get();
-        matchesSnapshot.forEach(doc => {
-            matches.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-        
-        return true;
     } catch (error) {
-        console.error('Error loading tournament:', error);
-        alert('Failed to load tournament. Please try again.');
-        return false;
+        console.error('Error loading tournaments:', error);
     }
 }
 
 async function saveMatches() {
+    if (!currentTournamentId) return;
     try {
-        if (!currentTournamentId) return;
-        
         const matchesRef = db.collection('tournaments').doc(currentTournamentId).collection('matches');
-        
-        // Clear existing matches
-        const existingMatches = await matchesRef.get();
         const batch = db.batch();
-        existingMatches.forEach(doc => {
-            batch.delete(doc.ref);
-        });
+        const existingMatches = await matchesRef.get();
+        existingMatches.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
-        
-        // Add matches
-        for (const match of matches) {
-            const { id, ...matchData } = match;
-            await matchesRef.add(matchData);
-        }
-        
-        // Update points table
+
+        matches.forEach(match => {
+            if (match.team1 || match.team2) matchesRef.add(match); // Only save non-empty matches
+        });
         await updatePointsTable();
-        
-        alert('Match schedule saved successfully');
+        alert('Matches saved successfully');
     } catch (error) {
         console.error('Error saving matches:', error);
-        alert('Failed to save match schedule. Please try again.');
+        alert('Failed to save matches.');
     }
 }
 
 async function updatePointsTable() {
     if (!currentTournamentId) return;
-    
     try {
         const pointsRef = db.collection('tournaments').doc(currentTournamentId).collection('points');
-        
-        // Reset points
-        const teams = {};
-        const teamsSnapshot = await db.collection('tournaments').doc(currentTournamentId).collection('teams').get();
-        teamsSnapshot.forEach(doc => {
-            teams[doc.id] = {
-                points: 0,
-                matchesPlayed: 0,
-                won: 0,
-                lost: 0
-            };
+        const points = {};
+        teams.forEach((team, index) => {
+            points[team.name] = { points: 0, matchesPlayed: 0, won: 0, lost: 0, iconIndex: index };
         });
-        
-        // Calculate points from matches
+
         matches.forEach(match => {
-            if (match.team1Score !== undefined && match.team2Score !== undefined &&
-                match.team1Score !== null && match.team2Score !== null &&
-                match.team1 && match.team2) {
-                
-                const team1Score = parseInt(match.team1Score);
-                const team2Score = parseInt(match.team2Score);
-                
-                if (!isNaN(team1Score) && !isNaN(team2Score)) {
-                    // Increment matches played
-                    if (teams[match.team1]) {
-                        teams[match.team1].matchesPlayed++;
+            if (match.team1Score && match.team2Score && match.team1 && match.team2) {
+                const score1 = parseInt(match.team1Score);
+                const score2 = parseInt(match.team2Score);
+                if (!isNaN(score1) && !isNaN(score2)) {
+                    points[match.team1].matchesPlayed++;
+                    points[match.team2].matchesPlayed++;
+                    if (score1 > score2) {
+                        points[match.team1].points += 2;
+                        points[match.team1].won++;
+                        points[match.team2].lost++;
+                    } else if (score2 > score1) {
+                        points[match.team2].points += 2;
+                        points[match.team2].won++;
+                        points[match.team1].lost++;
                     }
-                    if (teams[match.team2]) {
-                        teams[match.team2].matchesPlayed++;
-                    }
-                    
-                    // Determine winner and assign points
-                    if (team1Score > team2Score) {
-                        // Team 1 wins
-                        if (teams[match.team1]) {
-                            teams[match.team1].points += 2;
-                            teams[match.team1].won++;
-                        }
-                        if (teams[match.team2]) {
-                            teams[match.team2].lost++;
-                        }
-                    } else if (team2Score > team1Score) {
-                        // Team 2 wins
-                        if (teams[match.team2]) {
-                            teams[match.team2].points += 2;
-                            teams[match.team2].won++;
-                        }
-                        if (teams[match.team1]) {
-                            teams[match.team1].lost++;
-                        }
-                    }
-                    // In case of a tie, no points awarded (or could give 1 point each)
                 }
             }
         });
-        
-        // Update points in Firestore
+
         const batch = db.batch();
-        for (const [teamName, data] of Object.entries(teams)) {
-            const ref = pointsRef.doc(teamName);
-            batch.set(ref, data);
+        for (const [teamName, data] of Object.entries(points)) {
+            batch.set(pointsRef.doc(teamName), data);
         }
         await batch.commit();
-        
-        return true;
     } catch (error) {
-        console.error('Error updating points table:', error);
-        return false;
+        console.error('Error updating points:', error);
     }
 }
 
 async function loadPointsTable(tournamentId) {
-    if (!tournamentId) return;
-    
     try {
-        // Get tournament info
         const tournamentDoc = await db.collection('tournaments').doc(tournamentId).get();
         if (!tournamentDoc.exists) return;
-        
+
         currentTournamentId = tournamentId;
         currentTournamentName = tournamentDoc.data().name;
-        
-        // Get points data
-        const pointsSnapshot = await tournamentDoc.ref.collection('points').get();
-        const pointsData = [];
-        
-        pointsSnapshot.forEach(doc => {
-            pointsData.push({
-                team: doc.id,
-                ...doc.data()
-            });
+
+        const teamsSnap = await tournamentDoc.ref.collection('teams').get();
+        teams = [];
+        teamsSnap.forEach(doc => {
+            const data = doc.data();
+            teams.push({ name: doc.id, player1: data.player1, player2: data.player2, iconIndex: data.iconIndex });
         });
-        
-        // Sort by points (descending)
+
+        const matchesSnap = await tournamentDoc.ref.collection('matches').get();
+        matches = [];
+        matchesSnap.forEach(doc => matches.push({ matchNumber: doc.data().matchNumber, ...doc.data() }));
+
+        const pointsSnap = await tournamentDoc.ref.collection('points').get();
+        const pointsData = [];
+        pointsSnap.forEach(doc => {
+            pointsData.push({ team: doc.id, ...doc.data() });
+        });
+
         pointsData.sort((a, b) => b.points - a.points);
-        
-        // Display points table
         const tbody = pointsTable.querySelector('tbody');
         tbody.innerHTML = '';
-        
+
         pointsData.forEach((team, index) => {
             const row = tbody.insertRow();
             row.classList.add('highlight-row');
-            
-            // Add small delay for animation effect
-            setTimeout(() => {
-                row.classList.remove('highlight-row');
-            }, 200 * index);
-            
-            // Rank cell
-            const rankCell = row.insertCell();
-            rankCell.textContent = index + 1;
-            
-            // Team name cell
-            const teamCell = row.insertCell();
-            teamCell.innerHTML = `
+            setTimeout(() => row.classList.remove('highlight-row'), 200 * index);
+
+            row.insertCell().textContent = index + 1;
+            row.insertCell().innerHTML = `
                 <div class="team-cell">
-                    <div class="team-icon" style="background-color: ${getTeamIcon(index).bg}; color: ${getTeamIcon(index).text}">
+                    <div class="team-icon" style="background-color: ${getTeamIcon(team.iconIndex).bg}; color: ${getTeamIcon(team.iconIndex).text}">
                         ${getInitials(team.team)}
                     </div>
                     ${team.team}
                 </div>
             `;
-            
-            // Points cell
-            const pointsCell = row.insertCell();
-            pointsCell.textContent = team.points;
-            pointsCell.style.fontWeight = 'bold';
-            
-            // Matches played cell
-            const matchesCell = row.insertCell();
-            matchesCell.textContent = team.matchesPlayed;
-            
-            // Won cell
-            const wonCell = row.insertCell();
-            wonCell.textContent = team.won;
-            
-            // Lost cell
-            const lostCell = row.insertCell();
-            lostCell.textContent = team.lost;
+            row.insertCell().textContent = team.points;
+            row.insertCell().textContent = team.matchesPlayed;
+            row.insertCell().textContent = team.won;
+            row.insertCell().textContent = team.lost;
         });
-        
-        return true;
     } catch (error) {
         console.error('Error loading points table:', error);
-        return false;
     }
 }
 
 // Team Management
 function renderTeams() {
     teamsContainer.innerHTML = '';
-    
     teams.forEach((team, index) => {
         const teamDiv = document.createElement('div');
         teamDiv.className = 'team-card';
-        
-        // Set team icon color based on index
-        const teamIcon = getTeamIcon(team.iconIndex || index);
-        
+        const icon = getTeamIcon(index);
         teamDiv.innerHTML = `
             <div class="team-name">
-                <div class="team-icon" style="background-color: ${teamIcon.bg}; color: ${teamIcon.text}">
+                <div class="team-icon" style="background-color: ${icon.bg}; color: ${icon.text}">
                     ${getInitials(team.name)}
                 </div>
                 ${team.name}
             </div>
             <div class="player-list">
-                <div class="player-item">
-                    <span class="player-name">Player 1: ${team.player1}</span>
-                    <button class="edit-button" data-team-index="${index}" data-player="1">Edit</button>
-                </div>
-                <div class="player-item">
-                    <span class="player-name">Player 2: ${team.player2}</span>
-                    <button class="edit-button" data-team-index="${index}" data-player="2">Edit</button>
-                </div>
+                <div class="player-item">${team.player1}</div>
+                <div class="player-item">${team.player2}</div>
             </div>
-            <button class="secondary-button remove-team" data-team-index="${index}">Remove Team</button>
+            <button class="delete-team" data-index="${index}">Delete</button>
         `;
-        
         teamsContainer.appendChild(teamDiv);
     });
-    
-    // Add event listeners for edit and remove buttons
-    
+
+    document.querySelectorAll('.delete-team').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const index = parseInt(e.target.dataset.index);
+            if (confirm(`Delete team ${teams[index].name}?`)) {
+                teams.splice(index, 1);
+                renderTeams();
+            }
+        });
+    });
+}
+
+function addTeam() {
+    const teamName = prompt('Enter team name (e.g., Team 1 Riseup):');
+    if (!teamName || teams.some(t => t.name === teamName)) {
+        alert('Invalid or duplicate team name.');
+        return;
+    }
+
+    const player1 = prompt(`Enter Player 1 for ${teamName}:`);
+    if (!player1) return;
+
+    const player2 = prompt(`Enter Player 2 for ${teamName}:`);
+    if (!player2) return;
+
+    teams.push({ name: teamName, player1, player2, iconIndex: teams.length });
+    renderTeams();
+}
+
+// Match Schedule Management
+function renderMatchSchedule() {
+    const tbody = matchScheduleTable.querySelector('tbody');
+    tbody.innerHTML = '';
+
+    if (matches.length === 0) {
+        for (let i = 1; i <= 100; i++) {
+            matches.push({
+                matchNumber: i,
+                date: null,
+                team1: null,
+                team1Player1: null,
+                team1Player2: null,
+                team1Score: null,
+                team2: null,
+                team2Player1: null,
+                team2Player2: null,
+                team2Score: null
+            });
+        }
+    }
+
+    matches.forEach((match, index) => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td>${match.matchNumber}</td>
+            <td><input type="date" class="match-date" value="${match.date || ''}"></td>
+            <td><select class="team1-select">
+                <option value="">Select Team</option>
+                ${teams.map(t => `<option value="${t.name}" ${match.team1 === t.name ? 'selected' : ''}>${t.name}</option>`).join('')}
+            </select></td>
+            <td><input type="text" class="team1-player1" value="${match.team1Player1 || ''}"></td>
+            <td><input type="text" class="team1-player2" value="${match.team1Player2 || ''}"></td>
+            <td><input type="number" class="team1-score" value="${match.team1Score || ''}"></td>
+            <td><select class="team2-select">
+                <option value="">Select Team</option>
+                ${teams.map(t => `<option value="${t.name}" ${match.team2 === t.name ? 'selected' : ''}>${t.name}</option>`).join('')}
+            </select></td>
+            <td><input type="text" class="team2-player1" value="${match.team2Player1 || ''}"></td>
+            <td><input type="text" class="team2-player2" value="${match.team2Player2 || ''}"></td>
+            <td><input type="number" class="team2-score" value="${match.team2Score || ''}"></td>
+            <td><button class="delete-match" data-index="${index}">Delete</button></td>
+        `;
+
+        const team1Select = row.querySelector('.team1-select');
+        const team2Select = row.querySelector('.team2-select');
+
+        team1Select.addEventListener('change', (e) => {
+            const team = teams.find(t => t.name === e.target.value);
+            matches[index].team1 = e.target.value;
+            if (team) {
+                matches[index].team1Player1 = team.player1;
+                matches[index].team1Player2 = team.player2;
+                row.querySelector('.team1-player1').value = team.player1;
+                row.querySelector('.team1-player2').value = team.player2;
+            }
+        });
+
+        team2Select.addEventListener('change', (e) => {
+            const team = teams.find(t => t.name === e.target.value);
+            matches[index].team2 = e.target.value;
+            if (team) {
+                matches[index].team2Player1 = team.player1;
+                matches[index].team2Player2 = team.player2;
+                row.querySelector('.team2-player1').value = team.player1;
+                row.querySelector('.team2-player2').value = team.player2;
+            }
+        });
+
+        row.querySelector('.match-date').addEventListener('change', (e) => matches[index].date = e.target.value);
+        row.querySelector('.team1-player1').addEventListener('change', (e) => matches[index].team1Player1 = e.target.value);
+        row.querySelector('.team1-player2').addEventListener('change', (e) => matches[index].team1Player2 = e.target.value);
+        row.querySelector('.team1-score').addEventListener('change', (e) => matches[index].team1Score = e.target.value);
+        row.querySelector('.team2-player1').addEventListener('change', (e) => matches[index].team2Player1 = e.target.value);
+        row.querySelector('.team2-player2').addEventListener('change', (e) => matches[index].team2Player2 = e.target.value);
+        row.querySelector('.team2-score').addEventListener('change', (e) => matches[index].team2Score = e.target.value);
+
+        row.querySelector('.delete-match').addEventListener('click', () => {
+            if (confirm(`Delete match #${match.matchNumber}?`)) {
+                matches.splice(index, 1);
+                matches.forEach((m, i) => m.matchNumber = i + 1); // Renumber matches
+                renderMatchSchedule();
+            }
+        });
+    });
+}
+
+// Event Listeners
+tournamentSetupButton.addEventListener('click', () => showPage(tournamentSetupPage));
+matchScheduleButton.addEventListener('click', () => {
+    if (currentTournamentId) showPage(matchSchedulePage);
+    else alert('Please set up a tournament first');
+});
+pointsTableButton.addEventListener('click', () => showPage(pointsTablePage));
+
+addTeamButton.addEventListener('click', addTeam);
+goToMatchScheduleButton.addEventListener('click', async () => {
+    const tournamentId = await saveTournamentData();
+    if (tournamentId) showPage(matchSchedulePage);
+});
+deleteTournamentButton.addEventListener('click', deleteTournament);
+backToHomeFromSetupButton.addEventListener('click', () => showPage(homepage));
+
+saveMatchScheduleButton.addEventListener('click', saveMatches);
+goToPointsTableFromScheduleButton.addEventListener('click', () => showPage(pointsTablePage));
+backToHomeFromScheduleButton.addEventListener('click', () => showPage(homepage));
+
+tournamentSelect.addEventListener('change', (e) => loadPointsTable(e.target.value));
+backToHomeFromPointsButton.addEventListener('click', () => showPage(homepage));
+
+// Initial Setup
+showPage(homepage);

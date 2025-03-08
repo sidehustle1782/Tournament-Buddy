@@ -1,231 +1,152 @@
-/* Base styles */
-:root {
-    --primary-color: #007FFF; /* Bright blue */
-    --primary-dark: #0060DD; /* Darker blue */
-    --secondary-color: #E91E63; /* Pink accent */
-    --background-dark: rgba(0, 0, 0, 0.85);
-    --background-light: rgba(15, 15, 30, 0.75);
-    --text-light: #FFFFFF;
-    --text-muted: rgba(255, 255, 255, 0.7);
-    --border-color: rgba(255, 255, 255, 0.2);
-    --success-color: #4CAF50;
-    --danger-color: #F44336;
-}
-
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #000;
-    color: var(--text-light);
-    margin: 0;
-    padding: 0;
-    background-image: url('background.jpg');
-    background-size: cover;
-    background-position: center top; /* Adjusted for better alignment */
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    min-height: 100vh;
+    background: #0a0a0a;
+    color: #fff;
+    line-height: 1.6;
+    overflow-x: hidden;
 }
 
-#app {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Header */
 header {
     text-align: center;
     padding: 20px 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: linear-gradient(90deg, #1a1a1a, #2a2a2a);
 }
 
 .logo {
-    font-family: 'Orbitron', sans-serif; /* Futuristic font */
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0;
-    background: linear-gradient(90deg, var(--primary-color), #00F0FF);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 10px rgba(0, 127, 255, 0.5);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8em;
+    letter-spacing: 2px;
 }
 
-/* Page Structure */
 .page {
     display: none;
     padding: 20px;
-    flex: 1;
+    min-height: 100vh;
 }
 
 .page.active {
     display: block;
 }
 
+.hero-content {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.animated-title {
+    font-size: 1.5em;
+    font-weight: 500;
+    animation: fadeIn 2s ease-in-out infinite alternate;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0.5; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.button-container {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.primary-button, .secondary-button, .text-button, .delete-button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+
+.primary-button {
+    background: #00b4d8;
+    color: #fff;
+}
+
+.secondary-button {
+    background: #fff;
+    color: #0a0a0a;
+}
+
+.text-button {
+    background: none;
+    color: #00b4d8;
+    text-decoration: underline;
+}
+
+.delete-button {
+    background: #F44336;
+    color: #fff;
+}
+
+.primary-button:hover, .secondary-button:hover, .delete-button:hover {
+    transform: scale(1.05);
+}
+
 .page-content {
-    background-color: var(--background-dark);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(5px);
-    border: 1px solid var(--border-color);
-    margin-bottom: 30px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 h2 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.5rem;
+    font-size: 1.5em;
     margin-bottom: 20px;
-    text-align: center;
-    font-weight: 500;
 }
 
-h3 {
-    font-size: 1.2rem;
-    margin: 15px 0;
-    font-weight: 500;
-}
-
-/* Homepage */
-.hero-content {
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.animated-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 30px;
-    animation: slideIn 1s ease-out;
-    background: linear-gradient(90deg, var(--primary-color), #00F0FF);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* Buttons */
-.button-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin: 20px auto;
-    max-width: 300px; /* Keeps buttons compact on mobile */
-}
-
-button {
-    font-family: 'Roboto', sans-serif;
-    cursor: pointer;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 500;
-    padding: 14px 20px;
-    transition: all 0.2s ease;
-}
-
-.primary-button {
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    box-shadow: 0 4px 6px rgba(0, 127, 255, 0.3);
-}
-
-.primary-button:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0, 127, 255, 0.4);
-}
-
-.secondary-button {
-    background-color: transparent;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-}
-
-.secondary-button:hover {
-    background-color: rgba(0, 127, 255, 0.1);
-}
-
-.text-button {
-    background-color: transparent;
-    color: var(--text-muted);
-    padding: 10px;
-    text-decoration: underline;
-}
-
-.text-button:hover {
-    color: var(--text-light);
-}
-
-/* Forms */
 .form-group {
     margin-bottom: 20px;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    color: var(--text-muted);
+    font-size: 0.9em;
+    margin-bottom: 5px;
 }
 
 input, select {
     width: 100%;
-    padding: 12px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    color: var(--text-light);
-    font-size: 1rem;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 1em;
 }
 
-input:focus, select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(0, 127, 255, 0.3);
+.teams-section h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
 }
 
-/* Teams Container */
 .teams-container {
-    margin: 20px 0;
+    margin-bottom: 20px;
 }
 
 .team-card {
-    background-color: var(--background-light);
-    border-radius: 8px;
+    background: #1a1a1a;
     padding: 15px;
+    border-radius: 10px;
     margin-bottom: 15px;
-    border: 1px solid var(--border-color);
+    position: relative;
 }
 
 .team-name {
-    font-weight: 500;
-    font-size: 1.1rem;
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 10px;
+    font-weight: 500;
 }
 
 .team-icon {
@@ -235,147 +156,94 @@ input:focus, select:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.9em;
+    font-weight: bold;
 }
 
 .player-list {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    margin-top: 10px;
 }
 
 .player-item {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+    align-items: center;
+    margin: 5px 0;
+    font-size: 0.9em;
 }
 
-.player-name {
-    flex: 1;
-}
-
-.edit-button {
-    background-color: transparent;
-    color: var(--primary-color);
+.delete-team {
+    background: #F44336;
+    color: #fff;
     border: none;
-    padding: 5px;
-    font-size: 0.9rem;
+    padding: 5px 10px;
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 0.8em;
+    position: absolute;
+    top: 10px;
+    right: 10px;
 }
 
-/* Tables */
 .table-container {
     overflow-x: auto;
-    margin: 20px 0;
-}
-
-.tournament-name-display {
-    text-align: center;
     margin-bottom: 20px;
-    font-size: 1.2rem;
-    color: var(--primary-color);
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
+    background: #1a1a1a;
 }
 
 th, td {
-    padding: 12px 15px;
+    padding: 10px;
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9em;
+    border-bottom: 1px solid #333;
 }
 
 th {
-    background-color: rgba(0, 0, 0, 0.3);
-    color: var(--text-muted);
-    font-family: 'Orbitron', sans-serif;
+    background: #2a2a2a;
     font-weight: 500;
-    position: sticky;
-    top: 0;
 }
 
-tbody tr {
-    transition: background-color 0.2s;
+td input, td select {
+    width: 100%;
+    padding: 5px;
+    font-size: 0.9em;
 }
 
-tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+.delete-match {
+    background: #F44336;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-/* Points Table Animation */
 .highlight-row {
-    animation: slideUp 0.5s ease-out;
+    animation: highlight 0.5s ease-out;
 }
 
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+@keyframes highlight {
+    0% { background: #00b4d8; }
+    100% { background: transparent; }
+}
+
+@media (min-width: 768px) {
+    .button-container {
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-/* Dropdown styling */
-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 30px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .logo {
-        font-size: 1.5rem;
+    .page-content {
+        max-width: 600px;
     }
 
     .animated-title {
-        font-size: 1.2rem;
-    }
-
-    h2 {
-        font-size: 1.3rem;
-    }
-
-    button {
-        font-size: 0.9rem;
-        padding: 12px 15px;
-    }
-
-    th, td {
-        padding: 8px 10px;
-        font-size: 0.85rem;
-    }
-
-    .team-card {
-        padding: 10px;
-    }
-}
-
-@media (min-width: 769px) {
-    .page {
-        padding: 30px;
-    }
-    
-    .button-container {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        max-width: none;
-    }
-    
-    .primary-button, .secondary-button {
-        min-width: 200px;
+        font-size: 2em;
     }
 }

@@ -253,6 +253,12 @@ async function updatePointsTable() {
 async function loadPointsTable(tournamentId) {
     if (!tournamentId) return;
     try {
+        console.log('Loading points table for tournament:', tournamentId);
+        if (!pointsTablePage.classList.contains('active')) {
+            console.log('Points table page not active, showing it now.');
+            showPage(pointsTablePage);
+        }
+
         const tournamentDoc = await db.collection('tournaments').doc(tournamentId).get();
         if (!tournamentDoc.exists) {
             alert('Tournament not found.');
@@ -287,6 +293,12 @@ async function loadPointsTable(tournamentId) {
 
         pointsData.sort((a, b) => b.points - a.points);
         const tbody = pointsTable.querySelector('tbody');
+        if (!tbody) {
+            console.error('tbody not found in pointsTable');
+            alert('Error: Points table structure is broken.');
+            return;
+        }
+        console.log('Rendering points table with data:', pointsData);
         tbody.innerHTML = '';
 
         pointsData.forEach((team, index) => {

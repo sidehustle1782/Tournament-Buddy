@@ -317,33 +317,38 @@ async function loadPointsTable(tournamentId) {
         });
 
         pointsData.sort((a, b) => b.points - a.points);
-        const tbody = pointsTable.querySelector('tbody');
-        if (!tbody) {
-            console.error('tbody not found in pointsTable');
-            alert('Error: Points table structure is broken.');
-            return;
-        }
 
-        tbody.innerHTML = '';
-        pointsData.forEach((team, index) => {
-            const row = tbody.insertRow();
-            row.classList.add('highlight-row');
-            setTimeout(() => row.classList.remove('highlight-row'), 200 * index);
+        // Delay rendering to ensure DOM is ready
+        setTimeout(() => {
+            const tbody = pointsTable.querySelector('tbody');
+            if (!tbody) {
+                console.error('tbody not found in pointsTable');
+                alert('Error: Points table structure is broken.');
+                return;
+            }
 
-            row.insertCell().textContent = index + 1;
-            row.insertCell().innerHTML = `
-                <div class="team-cell">
-                    <div class="team-icon" style="background-color: ${getTeamIcon(team.iconIndex).bg}; color: ${getTeamIcon(team.iconIndex).text}">
-                        ${getInitials(team.team)}
+            tbody.innerHTML = '';
+            pointsData.forEach((team, index) => {
+                const row = tbody.insertRow();
+                row.classList.add('highlight-row');
+                setTimeout(() => row.classList.remove('highlight-row'), 200 * index);
+
+                row.insertCell().textContent = index + 1;
+                row.insertCell().innerHTML = `
+                    <div class="team-cell">
+                        <div class="team-icon" style="background-color: ${getTeamIcon(team.iconIndex).bg}; color: ${getTeamIcon(team.iconIndex).text}">
+                            ${getInitials(team.team)}
+                        </div>
+                        ${team.team}
                     </div>
-                    ${team.team}
-                </div>
-            `;
-            row.insertCell().textContent = team.points;
-            row.insertCell().textContent = team.matchesPlayed;
-            row.insertCell().textContent = team.won;
-            row.insertCell().textContent = team.lost;
-        });
+                `;
+                row.insertCell().textContent = team.points;
+                row.insertCell().textContent = team.matchesPlayed;
+                row.insertCell().textContent = team.won;
+                row.insertCell().textContent = team.lost;
+            });
+            console.log('Points table rendered successfully');
+        }, 100); // 100ms delay to allow DOM update
     } catch (error) {
         console.error('Error loading points table:', error);
         alert('Failed to load points table.');

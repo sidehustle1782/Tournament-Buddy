@@ -117,12 +117,12 @@ label {
 
 input, select {
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     border: 1px solid #333;
     border-radius: 5px;
     background: #1a1a1a;
     color: #fff;
-    font-size: 1em;
+    font-size: 0.9em;
 }
 
 .teams-section h3 {
@@ -146,104 +146,4 @@ input, select {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 500;
-}
-
-.team-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9em;
-    font-weight: bold;
-}
-
-.player-list {
-    margin-top: 10px;
-}
-
-.player-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 5px 0;
-    font-size: 0.9em;
-}
-
-.delete-team {
-    background: #F44336;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.8em;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.table-container {
-    overflow-x: auto;
-    margin-bottom: 20px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #1a1a1a;
-}
-
-th, td {
-    padding: 10px;
-    text-align: left;
-    font-size: 0.9em;
-    border-bottom: 1px solid #333;
-}
-
-th {
-    background: #2a2a2a;
-    font-weight: 500;
-}
-
-td input, td select {
-    width: 100%;
-    padding: 5px;
-    font-size: 0.9em;
-}
-
-.delete-match {
-    background: #F44336;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.highlight-row {
-    animation: highlight 0.5s ease-out;
-}
-
-@keyframes highlight {
-    0% { background: #00b4d8; }
-    100% { background: transparent; }
-}
-
-@media (min-width: 768px) {
-    .button-container {
-        flex-direction: row;
-        justify-content: center;
-        gap: 20px;
-    }
-
-    .page-content {
-        max-width: 600px;
-    }
-
-    .animated-title {
-        font-size: 2em;
-    }
-}
+    font-weight: 500

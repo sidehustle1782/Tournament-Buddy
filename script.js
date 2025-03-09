@@ -137,7 +137,7 @@ async function saveTournamentData() {
         return currentTournamentId;
     } catch (error) {
         console.error('Error saving tournament:', error);
-        alert('Failed to save tournament. Check console.');
+        alert('Failed to save tournament.');
         return null;
     }
 }
@@ -201,7 +201,7 @@ async function saveMatches() {
         await batch.commit();
 
         matches.forEach(match => {
-            if (match.team1 || match.team2) matchesRef.add(match); // Only save non-empty matches
+            if (match.team1 || match.team2) matchesRef.add(match);
         });
         await updatePointsTable();
         alert('Matches saved successfully');
@@ -251,13 +251,18 @@ async function updatePointsTable() {
 }
 
 async function loadPointsTable(tournamentId) {
+    if (!tournamentId) return;
     try {
         const tournamentDoc = await db.collection('tournaments').doc(tournamentId).get();
-        if (!tournamentDoc.exists) return;
+        if (!tournamentDoc.exists) {
+            alert('Tournament not found.');
+            return;
+        }
 
         currentTournamentId = tournamentId;
         currentTournamentName = tournamentDoc.data().name;
 
+        // Load teams
         const teamsSnap = await tournamentDoc.ref.collection('teams').get();
         teams = [];
         teamsSnap.forEach(doc => {
@@ -265,10 +270,15 @@ async function loadPointsTable(tournamentId) {
             teams.push({ name: doc.id, player1: data.player1, player2: data.player2, iconIndex: data.iconIndex });
         });
 
+        // Load matches
         const matchesSnap = await tournamentDoc.ref.collection('matches').get();
         matches = [];
         matchesSnap.forEach(doc => matches.push({ matchNumber: doc.data().matchNumber, ...doc.data() }));
 
+        // Update points based on loaded matches
+        await updatePointsTable();
+
+        // Load and display points
         const pointsSnap = await tournamentDoc.ref.collection('points').get();
         const pointsData = [];
         pointsSnap.forEach(doc => {
@@ -300,6 +310,7 @@ async function loadPointsTable(tournamentId) {
         });
     } catch (error) {
         console.error('Error loading points table:', error);
+        alert('Failed to load points table.');
     }
 }
 
@@ -434,7 +445,7 @@ function renderMatchSchedule() {
         row.querySelector('.delete-match').addEventListener('click', () => {
             if (confirm(`Delete match #${match.matchNumber}?`)) {
                 matches.splice(index, 1);
-                matches.forEach((m, i) => m.matchNumber = i + 1); // Renumber matches
+                matches.forEach((m, i) => m.matchNumber = i + 1);
                 renderMatchSchedule();
             }
         });

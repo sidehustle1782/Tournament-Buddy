@@ -30,6 +30,7 @@ const goToMatchScheduleButton = document.getElementById('goToMatchSchedule');
 const deleteTournamentButton = document.getElementById('deleteTournament');
 const backToHomeFromSetupButton = document.getElementById('backToHomeFromSetup');
 
+const matchTournamentSelect = document.getElementById('matchTournamentSelect');
 const tournamentNameDisplay = document.getElementById('tournamentNameDisplay');
 const matchScheduleTable = document.getElementById('matchScheduleTable');
 const saveMatchScheduleButton = document.getElementById('saveMatchSchedule');
@@ -66,11 +67,10 @@ function showPage(page) {
     page.classList.add('active');
     currentPage = page;
 
-    if (page === matchSchedulePage && currentTournamentName) {
-        tournamentNameDisplay.textContent = currentTournamentName;
-        renderMatchSchedule();
+    if (page === matchSchedulePage) {
+        loadTournamentSelect(matchTournamentSelect, loadMatchSchedule);
     } else if (page === pointsTablePage) {
-        loadTournamentSelect();
+        loadTournamentSelect(tournamentSelect, loadPointsTable);
     } else if (page === tournamentSetupPage) {
         renderTeams();
     }
@@ -147,7 +147,7 @@ async function deleteTournament() {
         alert('No tournament to delete.');
         return;
     }
-    if (confirm('Are you sure you want to delete this tournament? This will remove all associated data.')) {
+    if (confirm('Are you sure you want to delete this tournament?')) {
         try {
             const tournamentRef = db.collection('tournaments').doc(currentTournamentId);
             const teamsSnap = await tournamentRef.collection('teams').get();
@@ -176,16 +176,17 @@ async function deleteTournament() {
     }
 }
 
-async function loadTournamentSelect() {
+async function loadTournamentSelect(selectElement, callback) {
     try {
         const tournamentsSnapshot = await db.collection('tournaments').orderBy('createdAt', 'desc').get();
-        tournamentSelect.innerHTML = '<option value="">Select Tournament</option>';
+        selectElement.innerHTML = '<option value="">Select Tournament</option>';
         tournamentsSnapshot.forEach(doc => {
             const option = document.createElement('option');
             option.value = doc.id;
             option.textContent = doc.data().name;
-            tournamentSelect.appendChild(option);
+            selectElement.appendChild(option);
         });
+        selectElement.onchange = (e) => callback(e.target.value);
     } catch (error) {
         console.error('Error loading tournaments:', error);
     }
@@ -250,14 +251,42 @@ async function updatePointsTable() {
     }
 }
 
+async function loadMatchSchedule(tournamentId) {
+    if (!tournamentId) return;
+    try {
+        const tournamentDoc = await db.collection('tournaments').doc(tournamentId).get();
+        if (!tournamentDoc.exists) {
+            alert('Tournament not found.');
+            return;
+        }
+
+        currentTournamentId = tournamentId;
+        currentTournamentName = tournamentDoc.data().name;
+        tournamentNameDisplay.textContent = currentTournamentName;
+
+        const teamsSnap = await tournamentDoc.ref.collection('teams').get();
+        teams = [];
+        teamsSnap.forEach(doc => {
+            const data = doc.data();
+            teams.push({ name: doc.id, player1: data.player1, player2: data.player2, iconIndex: data.iconIndex });
+        });
+
+        const matchesSnap = await tournamentDoc.ref.collection('matches').get();
+        matches = [];
+        matchesSnap.forEach(doc => matches.push({ matchNumber: doc.data().matchNumber, ...doc.data() }));
+
+        renderMatchSchedule();
+    } catch (error) {
+        console.error('Error loading match schedule:', error);
+        alert('Failed to load match schedule.');
+    }
+}
+
 async function loadPointsTable(tournamentId) {
     if (!tournamentId) return;
     try {
         console.log('Loading points table for tournament:', tournamentId);
-        if (!pointsTablePage.classList.contains('active')) {
-            console.log('Points table page not active, showing it now.');
-            showPage(pointsTablePage);
-        }
+        showPage(pointsTablePage); // Ensure page is visible
 
         const tournamentDoc = await db.collection('tournaments').doc(tournamentId).get();
         if (!tournamentDoc.exists) {
@@ -268,7 +297,6 @@ async function loadPointsTable(tournamentId) {
         currentTournamentId = tournamentId;
         currentTournamentName = tournamentDoc.data().name;
 
-        // Load teams
         const teamsSnap = await tournamentDoc.ref.collection('teams').get();
         teams = [];
         teamsSnap.forEach(doc => {
@@ -276,15 +304,12 @@ async function loadPointsTable(tournamentId) {
             teams.push({ name: doc.id, player1: data.player1, player2: data.player2, iconIndex: data.iconIndex });
         });
 
-        // Load matches
         const matchesSnap = await tournamentDoc.ref.collection('matches').get();
         matches = [];
         matchesSnap.forEach(doc => matches.push({ matchNumber: doc.data().matchNumber, ...doc.data() }));
 
-        // Update points based on loaded matches
         await updatePointsTable();
 
-        // Load and display points
         const pointsSnap = await tournamentDoc.ref.collection('points').get();
         const pointsData = [];
         pointsSnap.forEach(doc => {
@@ -298,9 +323,8 @@ async function loadPointsTable(tournamentId) {
             alert('Error: Points table structure is broken.');
             return;
         }
-        console.log('Rendering points table with data:', pointsData);
-        tbody.innerHTML = '';
 
+        tbody.innerHTML = '';
         pointsData.forEach((team, index) => {
             const row = tbody.insertRow();
             row.classList.add('highlight-row');
@@ -380,6 +404,11 @@ function addTeam() {
 // Match Schedule Management
 function renderMatchSchedule() {
     const tbody = matchScheduleTable.querySelector('tbody');
+    if (!tbody) {
+        console.error('tbody not found in matchScheduleTable');
+        alert('Error: Match schedule structure is broken.');
+        return;
+    }
     tbody.innerHTML = '';
 
     if (matches.length === 0) {
@@ -466,10 +495,7 @@ function renderMatchSchedule() {
 
 // Event Listeners
 tournamentSetupButton.addEventListener('click', () => showPage(tournamentSetupPage));
-matchScheduleButton.addEventListener('click', () => {
-    if (currentTournamentId) showPage(matchSchedulePage);
-    else alert('Please set up a tournament first');
-});
+matchScheduleButton.addEventListener('click', () => showPage(matchSchedulePage));
 pointsTableButton.addEventListener('click', () => showPage(pointsTablePage));
 
 addTeamButton.addEventListener('click', addTeam);
@@ -484,7 +510,6 @@ saveMatchScheduleButton.addEventListener('click', saveMatches);
 goToPointsTableFromScheduleButton.addEventListener('click', () => showPage(pointsTablePage));
 backToHomeFromScheduleButton.addEventListener('click', () => showPage(homepage));
 
-tournamentSelect.addEventListener('change', (e) => loadPointsTable(e.target.value));
 backToHomeFromPointsButton.addEventListener('click', () => showPage(homepage));
 
 // Initial Setup
